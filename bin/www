@@ -25,7 +25,7 @@ var server = http.createServer(app);
  * Socket IO
  */
 
-var io = require('socket.io')(server);
+var io = require('socket.io')(server, {origins: '*:*'});
 
 io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });

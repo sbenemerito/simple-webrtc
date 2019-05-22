@@ -1,7 +1,7 @@
 /**
  * Socket IO Client
  */
-const socket = io.connect('localhost:3000');
+const socket = io.connect('localhost:3000'); // Change to ngrock link when testing
 socket.on('news', function (data) {
   console.log(data);
 
