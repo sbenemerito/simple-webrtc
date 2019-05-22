@@ -16,10 +16,10 @@ socket.on('data broadcast', function(data) {
     } else if (data.sdp.type === "offer") {
       pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
         .then(function() {
-          pc.createAnswer();
+          return pc.createAnswer();
         })
         .then(function(answer) {
-          pc.setLocalDescription(answer);
+          return pc.setLocalDescription(answer);
         })
         .then(function() {
           socket.emit('ice candidate', {id: yourId, sdp: pc.localDescription});
@@ -82,8 +82,6 @@ function streamOwn() {
   })
     .then(function(stream) {
       ownVideo.srcObject = stream;
-    })
-    .then(function(stream) {
       pc.addStream(stream);
     });
 }
@@ -91,7 +89,7 @@ function streamOwn() {
 function streamPeer() {
   pc.createOffer()
     .then(function(offer) {
-      pc.setLocalDescription(offer);
+      return pc.setLocalDescription(offer);
     })
     .then(function() {
       socket.emit('ice candidate', {id: yourId, sdp: pc.localDescription});
