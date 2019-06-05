@@ -28,10 +28,18 @@ var server = http.createServer(app);
 var io = require('socket.io')(server, {origins: '*:*'});
 
 io.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
+  io.emit('someone connected', {});
 
   socket.on('ice candidate', function (data) {
-    socket.broadcast.emit('data broadcast', data);
+    io.emit('data broadcast', data);
+  });
+
+  socket.on('webrtc disconnected', function (data) {
+    io.emit('data broadcast', data);
+  });
+
+  socket.on('disconnect', function () {
+    io.emit('someone disconnected', {});
   });
 });
 

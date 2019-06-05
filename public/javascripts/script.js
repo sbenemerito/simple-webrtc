@@ -2,10 +2,12 @@
  * Socket IO Client
  */
 const socket = io.connect('localhost:3000'); // Change to ngrock link when testing
-socket.on('news', function (data) {
-  console.log(data);
+socket.on('someone connected', function (data) {
+  console.log('someone connected!');
+});
 
-  socket.emit('my other event', { my: 'data' });
+socket.on('someone disconnected', function (data) {
+  console.log('someone disconnected!');
 });
 
 socket.on('data broadcast', function(data) {
@@ -13,7 +15,10 @@ socket.on('data broadcast', function(data) {
   if (sender != yourId) {
     if (data.ice != undefined) {
       pc.addIceCandidate(new RTCIceCandidate(data.ice));
+    } else if (data.sdp == undefined) {
+      console.log('peer disconnected from webrtc');
     } else if (data.sdp.type === "offer") {
+      console.log(data, 'received data');
       pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
         .then(function() {
           return pc.createAnswer();
@@ -23,6 +28,10 @@ socket.on('data broadcast', function(data) {
         })
         .then(function() {
           socket.emit('ice candidate', {id: yourId, sdp: pc.localDescription});
+        })
+        .catch(function(err) {
+          console.log(err, 'error');
+          console.log(err.message, 'error message');
         });
     } else if (data.sdp.type === "answer") {
       pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
@@ -65,6 +74,17 @@ pc.onicecandidate = function(event) {
 pc.onaddstream = function(event) {
   peerVideo.srcObject = event.stream;
 };
+
+pc.onconnectionstatechange = function(event) {
+  console.log(pc.connectionState + ' webrtc!');
+};
+
+// pc.oniceconnectionstatechange = function() {
+
+//   if (pc.iceConnectionState == 'disconnected') {
+//     socket.emit('webrtc disconnected', {id: yourId});
+//   }
+// };
 
 function sendMessage(senderId, data) {
     var msg = database.push({
